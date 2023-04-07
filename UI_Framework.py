@@ -4,9 +4,10 @@ pygame.init()
 pygame.font.init()
 
 class Frame:
-  def __init__(self, x, y, width, height, color, border_width=1):
+  def __init__(self, x, y, width, height, color=(255, 255, 255), border_color=(0, 0, 0), border_width=1):
     self.rect = pygame.Rect(x, y, width, height)
     self.color = color
+    self.border_color = border_color
     self.border_width = border_width
     
   def draw(self, surface):
@@ -20,21 +21,21 @@ class Frame:
       self.rect.width + self.border_width * 2,
       self.rect.height + self.border_width * 2
     )
-    pygame.draw.rect(surface, pygame.Color('black'), border_rect, self.border_width)
+    pygame.draw.rect(surface, self.border_color, border_rect, self.border_width)
         
   def handle_event(self, event):
     pass
 
 class TextInput:
-  def __init__(self, x, y, width, height, font_size=20, placeholder='', on_change=None):
+  def __init__(self, x, y, width, height, font_size=20, placeholder='', on_change=None, placeholder_color=(128, 128, 128), text_color=(0, 0, 0), active_color=(0, 0, 255), inactive_color=(128, 128, 128), font=None):
     self.rect = pygame.Rect(x, y, width, height)
     self.text = ''
-    self.font = pygame.font.Font(None, font_size)
+    self.font = pygame.font.Font(font, font_size)
     self.placeholder = placeholder
-    self.placeholder_color = (128, 128, 128)
-    self.text_color = (0, 0, 0)
-    self.active_color = (0, 0, 255)
-    self.inactive_color = (128, 128, 128)
+    self.placeholder_color = placeholder_color
+    self.text_color = text_color
+    self.active_color = active_color
+    self.inactive_color = inactive_color
     self.active = False
     self.on_change = on_change
 
@@ -74,10 +75,10 @@ class TextInput:
           self.on_change(self.text)
 
 class Checkbox:
-  def __init__(self, x, y, size, label='', font_size=20, checked=False, color=(0, 0, 0), check_color=(255, 255, 255)):
+  def __init__(self, x, y, size, label='', font_size=20, checked=False, color=(0, 0, 0), check_color=(255, 255, 255), font=None):
     self.rect = pygame.Rect(x, y, size, size)
     self.label = label
-    self.font = pygame.font.Font(None, font_size)
+    self.font = pygame.font.Font(font, font_size)
     self.checked = checked
     self.color = color
     self.check_color = check_color
@@ -99,11 +100,11 @@ class Checkbox:
         self.checked = not self.checked
 
 class Button:
-  def __init__(self, x, y, width, height, color: tuple, text='', font_size=20, click_handler=None, disabled=False):
+  def __init__(self, x, y, width, height, color=(255, 0, 0), text='', font_size=20, click_handler=None, disabled=False, font=None):
     self.rect = pygame.Rect(x, y, width, height)
     self.color = color
     self.text = text
-    self.font = pygame.font.Font(None, font_size)
+    self.font = pygame.font.Font(font, font_size)
     self.click_handler = click_handler
     self.disabled = disabled
 
@@ -116,17 +117,18 @@ class Button:
 
   def handle_event(self, event):
     if event.type == pygame.MOUSEBUTTONDOWN:
-      if self.rect.collidepoint(event.pos) and event.button == 1:
-        if self.click_handler is not None:
-          self.click_handler()
+      if not self.disabled:
+        if self.rect.collidepoint(event.pos) and event.button == 1:
+          if self.click_handler is not None:
+            self.click_handler()
 
 class Text:
-  def __init__(self, x, y, text, font_size=20, color=(0, 0, 0)):
+  def __init__(self, x, y, text, font_size=20, color=(0, 0, 0), font=None):
     self.x = x
     self.y = y
     self.text = text
     self.color = color
-    self.font = pygame.font.Font(None, font_size)
+    self.font = pygame.font.Font(font, font_size)
 
   def draw(self, surface):
     text_surface = self.font.render(self.text, True, self.color)
