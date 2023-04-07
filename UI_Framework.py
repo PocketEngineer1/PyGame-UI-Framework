@@ -3,6 +3,28 @@ import pygame
 pygame.init()
 pygame.font.init()
 
+class Frame:
+  def __init__(self, x, y, width, height, color, border_width=1):
+    self.rect = pygame.Rect(x, y, width, height)
+    self.color = color
+    self.border_width = border_width
+    
+  def draw(self, surface):
+    # Draw the frame background
+    pygame.draw.rect(surface, self.color, self.rect)
+        
+    # Draw the frame border
+    border_rect = pygame.Rect(
+      self.rect.x - self.border_width,
+      self.rect.y - self.border_width,
+      self.rect.width + self.border_width * 2,
+      self.rect.height + self.border_width * 2
+    )
+    pygame.draw.rect(surface, pygame.Color('black'), border_rect, self.border_width)
+        
+  def handle_event(self, event):
+    pass
+
 class TextInput:
   def __init__(self, x, y, width, height, font_size=20, placeholder='', on_change=None):
     self.rect = pygame.Rect(x, y, width, height)
@@ -77,13 +99,13 @@ class Checkbox:
         self.checked = not self.checked
 
 class Button:
-  def __init__(self, x, y, width, height, color: tuple, text='', font_size=20, click_handler=None, button=1):
+  def __init__(self, x, y, width, height, color: tuple, text='', font_size=20, click_handler=None, disabled=False):
     self.rect = pygame.Rect(x, y, width, height)
     self.color = color
     self.text = text
     self.font = pygame.font.Font(None, font_size)
     self.click_handler = click_handler
-    self.button = button
+    self.disabled = disabled
 
   def draw(self, surface):
     pygame.draw.rect(surface, self.color, self.rect)
@@ -94,13 +116,9 @@ class Button:
 
   def handle_event(self, event):
     if event.type == pygame.MOUSEBUTTONDOWN:
-      if self.rect.collidepoint(event.pos) and event.button == self.button:
+      if self.rect.collidepoint(event.pos) and event.button == 1:
         if self.click_handler is not None:
           self.click_handler()
-      elif self.button == 0:
-        if self.rect.collidepoint(event.pos):
-          if self.click_handler is not None:
-            self.click_handler()
 
 class Text:
   def __init__(self, x, y, text, font_size=20, color=(0, 0, 0)):
@@ -114,6 +132,9 @@ class Text:
     text_surface = self.font.render(self.text, True, self.color)
     surface.blit(text_surface, (self.x, self.y))
 
+  def handle_event(self, event):
+    pass
+
 class UI:
   def __init__(self, width, height, title):
     pygame.init()
@@ -122,10 +143,7 @@ class UI:
     self.screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption(title)
     self.clock = pygame.time.Clock()
-    self.buttons = []
-    self.texts = []
-    self.checkboxs = []
-    self.text_inputs = []
+    self.elements = []
 
   def run(self):
     running = True
@@ -133,45 +151,17 @@ class UI:
       for event in pygame.event.get():
         if event.type == pygame.QUIT:
           running = False
-        for button in self.buttons:
-          button.handle_event(event)
-        for checkbox in self.checkboxs:
-          checkbox.handle_event(event)
-        for text_input in self.text_inputs:
-          text_input.handle_event(event)
+        for element in self.elements:
+          element.handle_event(event)
 
       self.screen.fill((255, 255, 255))
-      for button in self.buttons:
-        button.draw(self.screen)
-      for text in self.texts:
-        text.draw(self.screen)
-      for checkbox in self.checkboxs:
-        checkbox.draw(self.screen)
-      for text_input in self.text_inputs:
-        text_input.draw(self.screen)
+      for element in self.elements:
+        element.draw(self.screen)
       pygame.display.flip()
       self.clock.tick(60)
 
-  def add_button(self, button):
-    self.buttons.append(button)
+  def add_element(self, element):
+    self.elements.append(element)
 
-  def add_text(self, text):
-    self.texts.append(text)
-
-  def add_checkbox(self, checkbox):
-    self.checkboxs.append(checkbox)
-
-  def add_text_input(self, textinput):
-    self.text_inputs.append(textinput)
-
-  def clear_buttons(self):
-    self.buttons = []
-
-  def clear_texts(self):
-    self.texts = []
-
-  def clear_checkboxs(self):
-    self.checkboxs = []
-
-  def clear_text_inputs(self):
-    self.text_inputs = []
+  def clear_elements(self):
+    self.elements = []
