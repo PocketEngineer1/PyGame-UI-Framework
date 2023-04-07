@@ -1,7 +1,7 @@
 import pygame
 
 class Button:
-  def __init__(self, position: tuple, size: tuple, color: tuple, text='', font_size=20, click_handler=None, button=0):
+  def __init__(self, position: tuple, size: tuple, color: tuple, text='', font_size=20, click_handler=None, button=1):
     self.rect = pygame.Rect(position[0], position[1], size[0], size[1])
     self.color = color
     self.text = text
@@ -21,7 +21,7 @@ class Button:
       if self.rect.collidepoint(event.pos) and event.button == self.button:
         if self.click_handler is not None:
           self.click_handler()
-      if self.button == 0:
+      elif self.button == 0:
         if self.rect.collidepoint(event.pos):
           if self.click_handler is not None:
             self.click_handler()
