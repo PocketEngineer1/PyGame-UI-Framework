@@ -3,6 +3,36 @@ import pygame
 pygame.init()
 pygame.font.init()
 
+class TextInput:
+  def __init__(self, x, y, width, height, font_size=20, text=''):
+    self.rect = pygame.Rect(x, y, width, height)
+    self.text = text
+    self.font = pygame.font.Font(None, font_size)
+    self.active = False
+
+  def draw(self, surface):
+    pygame.draw.rect(surface, (255, 255, 255), self.rect, 2)
+    text_surface = self.font.render(self.text, True, (0, 0, 0))
+    surface.blit(text_surface, (self.rect.x + 5, self.rect.y + 5))
+
+  def handle_event(self, event):
+    if event.type == pygame.MOUSEBUTTONDOWN:
+      if self.rect.collidepoint(event.pos):
+        self.active = not self.active
+      else:
+        self.active = False
+    if event.type == pygame.KEYDOWN:
+      if self.active:
+        if event.key == pygame.K_RETURN:
+          self.active = False
+        elif event.key == pygame.K_BACKSPACE:
+          self.text = self.text[:-1]
+        else:
+          self.text += event.unicode
+          
+  def get_text(self):
+    return self.text
+
 class Checkbox:
   def __init__(self, x, y, size, color, border_width=2, checked=False, click_handler=None):
     self.x = x
@@ -85,6 +115,7 @@ class UI:
     self.buttons = []
     self.texts = []
     self.checkboxs = []
+    self.text_inputs = []
 
   def run(self):
     running = True
@@ -102,6 +133,8 @@ class UI:
         text.draw(self.screen)
       for checkbox in self.checkboxs:
         checkbox.draw(self.screen)
+      for text_input in self.text_inputs:
+        text_input.draw(self.screen)
       pygame.display.flip()
       self.clock.tick(60)
 
@@ -111,8 +144,11 @@ class UI:
   def add_text(self, text):
     self.texts.append(text)
 
-  def add_checkbox(self, checkboxs):
-    self.checkboxs.append(checkboxs)
+  def add_checkbox(self, checkbox):
+    self.checkboxs.append(checkbox)
+
+  def add_text_input(self, textinput):
+    self.text_inputs.append(textinput)
 
   def clear_buttons(self):
     self.buttons = []
@@ -122,3 +158,6 @@ class UI:
 
   def clear_checkboxs(self):
     self.checkboxs = []
+
+  def clear_text_inputs(self):
+    self.text_inputs = []
