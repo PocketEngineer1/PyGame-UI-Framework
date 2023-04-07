@@ -3,6 +3,49 @@ import pygame
 pygame.init()
 pygame.font.init()
 
+class RadioButton:
+  def __init__(self, x, y, size, color, selected=False, group=None, click_handler=None):
+    self.rect = pygame.Rect(x, y, size, size)
+    self.color = color
+    self.selected = selected
+    self.group = group
+    self.click_handler = click_handler
+    
+    # If this button is part of a group, register it
+    if group is not None:
+      group.add_button(self)
+
+  def draw(self, surface):
+    # Draw the button outline
+    pygame.draw.circle(surface, self.color, self.rect.center, self.rect.width // 2, 3)
+    # If selected, draw a filled circle in the center
+    if self.selected:
+      pygame.draw.circle(surface, self.color, self.rect.center, self.rect.width // 4)
+
+  def handle_event(self, event):
+    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+      if self.rect.collidepoint(event.pos):
+        self.selected = True
+        if self.group is not None:
+          self.group.deselect_other_buttons(self)
+        if self.click_handler is not None:
+          self.click_handler()
+
+  def deselect(self):
+    self.selected = False
+
+class RadioButtonGroup:
+  def __init__(self):
+    self.buttons = []
+
+  def add_button(self, button):
+    self.buttons.append(button)
+
+  def deselect_other_buttons(self, selected_button):
+    for button in self.buttons:
+      if button is not selected_button:
+        button.deselect()
+
 class Frame:
   def __init__(self, x, y, width, height, color=(255, 255, 255), border_color=(0, 0, 0), border_width=1):
     self.rect = pygame.Rect(x, y, width, height)
@@ -75,13 +118,17 @@ class TextInput:
           self.on_change(self.text)
 
 class Checkbox:
-  def __init__(self, x, y, size, label='', font_size=20, checked=False, color=(0, 0, 0), check_color=(255, 255, 255), font=None):
+  def __init__(self, x, y, size, label='', font_size=20, checked=False, color=(0, 0, 0), check_color=(255, 255, 255), font=None, group=None):
     self.rect = pygame.Rect(x, y, size, size)
     self.label = label
     self.font = pygame.font.Font(font, font_size)
     self.checked = checked
     self.color = color
     self.check_color = check_color
+
+    # If this button is part of a group, register it
+    if group is not None:
+      group.add_button(self)
 
   def draw(self, surface):
     pygame.draw.rect(surface, self.color, self.rect, 2)
@@ -98,6 +145,22 @@ class Checkbox:
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
       if self.rect.collidepoint(event.pos):
         self.checked = not self.checked
+  
+  def get_checked(self):
+    return self.checked
+
+class CheckboxGroup:
+  def __init__(self):
+    self.buttons = []
+
+  def add_button(self, button):
+    self.buttons.append(button)
+
+  def get_states(self):
+    states = []
+    for button in self.buttons:
+      states.append(button.get_checked())
+    return states
 
 class Button:
   def __init__(self, x, y, width, height, color=(255, 0, 0), text='', font_size=20, click_handler=None, disabled=False, font=None):
@@ -138,11 +201,12 @@ class Text:
     pass
 
 class UI:
-  def __init__(self, width, height, title):
+  def __init__(self, width, height, title, background_color=(255, 255, 255)):
     pygame.init()
     self.width = width
     self.height = height
     self.screen = pygame.display.set_mode((width, height))
+    self.background_color = background_color
     pygame.display.set_caption(title)
     self.clock = pygame.time.Clock()
     self.elements = []
@@ -156,7 +220,7 @@ class UI:
         for element in self.elements:
           element.handle_event(event)
 
-      self.screen.fill((255, 255, 255))
+      self.screen.fill(self.background_color)
       for element in self.elements:
         element.draw(self.screen)
       pygame.display.flip()
