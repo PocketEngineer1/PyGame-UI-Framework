@@ -26,6 +26,18 @@ class Button:
           if self.click_handler is not None:
             self.click_handler()
 
+class Text:
+  def __init__(self, size: tuple, text, font_size=20, color=(0, 0, 0)):
+    self.x = size[0]
+    self.y = size[1]
+    self.text = text
+    self.color = color
+    self.font = pygame.font.Font(None, font_size)
+
+  def draw(self, surface):
+    text_surface = self.font.render(self.text, True, self.color)
+    surface.blit(text_surface, (self.x, self.y))
+
 class UI:
   def __init__(self, size: tuple, title):
     pygame.init()
@@ -35,6 +47,7 @@ class UI:
     pygame.display.set_caption(title)
     self.clock = pygame.time.Clock()
     self.buttons = []
+    self.texts = []
 
   def run(self):
     running = True
@@ -48,11 +61,19 @@ class UI:
       self.screen.fill((255, 255, 255))
       for button in self.buttons:
         button.draw(self.screen)
+      for text in self.texts:
+        text.draw(self.screen)
       pygame.display.flip()
       self.clock.tick(60)
 
   def add_button(self, button):
     self.buttons.append(button)
 
+  def add_text(self, text):
+    self.texts.append(text)
+
   def clear_buttons(self):
     self.buttons = []
+
+  def clear_texts(self):
+    self.texts = []
