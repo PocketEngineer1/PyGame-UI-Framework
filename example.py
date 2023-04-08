@@ -19,7 +19,7 @@ frame = Frame(5, 95, 200, 30, color=(200, 200, 200))
 radio_button_group = RadioButtonGroup()
 radio_button_1 = RadioButton(5, 130, 20, (0, 0, 0), group=radio_button_group)
 radio_button_2 = RadioButton(30, 130, 20, (0, 0, 0), group=radio_button_group)
-radio_button_3 = RadioButton(55, 130, 20, (0, 0, 0), group=radio_button_group)
+radio_button_3 = RadioButton(55, 130, 20, (0, 0, 0), group=radio_button_group, label='Radio Button')
 
 ui.add_element(button)
 ui.add_element(text)

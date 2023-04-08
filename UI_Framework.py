@@ -4,12 +4,14 @@ pygame.init()
 pygame.font.init()
 
 class RadioButton:
-  def __init__(self, x, y, size, color, selected=False, group=None, click_handler=None):
+  def __init__(self, x, y, size, color, selected=False, group=None, click_handler=None, label='', font=None, font_size=20):
     self.rect = pygame.Rect(x, y, size, size)
     self.color = color
     self.selected = selected
     self.group = group
     self.click_handler = click_handler
+    self.label = label
+    self.font = pygame.font.Font(font, font_size)
     
     # If this button is part of a group, register it
     if group is not None:
@@ -21,6 +23,11 @@ class RadioButton:
     # If selected, draw a filled circle in the center
     if self.selected:
       pygame.draw.circle(surface, self.color, self.rect.center, self.rect.width // 4)
+    
+    if self.label:
+      label_text = self.font.render(self.label, True, self.color)
+      label_rect = label_text.get_rect(left=self.rect.right + 10, centery=self.rect.centery)
+      surface.blit(label_text, label_rect)
 
   def handle_event(self, event):
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -192,6 +199,7 @@ class Text:
     self.text = text
     self.color = color
     self.font = pygame.font.Font(font, font_size)
+    self.height = font_size + 2
 
   def draw(self, surface):
     text_surface = self.font.render(self.text, True, self.color)
