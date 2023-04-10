@@ -3,8 +3,59 @@ import pygame
 pygame.init()
 pygame.font.init()
 
+class Container:
+  def __init__(self, x, y, width, height):
+    self.rect = pygame.Rect(x, y, width, height)
+    self.children = []
+
+  def add_child(self, child):
+    self.children.append(child)
+
+  def remove_child(self, child):
+    self.children.remove(child)
+
+  def draw(self, surface):
+    for child in self.children:
+      child.draw(surface)
+
+  def handle_event(self, event):
+    for child in self.children:
+      child.handle_event(event)
+
+# class Scrollbar:
+#   def __init__(self, x, y, height, frame):
+#     self.x = x
+#     self.y = y
+#     self.height = height
+#     self.frame = frame
+#     self.surface = pygame.Surface((10, height))
+#     self.rect = pygame.Rect(x, y, 10, height)
+#     temp = 0
+#     for child in self.frame.children:
+#       temp += child.height
+#     self.thumb_rect = pygame.Rect(x, y, 10, height * self.frame.rect.height / temp)
+#     del temp
+#     self.thumb_rect.bottom = self.rect.bottom
+
+#   def draw(self, surface):
+#     self.surface.fill((200, 200, 200))
+#     pygame.draw.rect(self.surface, (100, 100, 100), (0, 0, 10, self.height), 2)
+#     pygame.draw.rect(self.surface, (150, 150, 150), self.thumb_rect)
+#     surface.blit(self.surface, self.rect)
+
+#   def handle_event(self, event):
+#     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+#       if self.thumb_rect.collidepoint(event.pos):
+#         self.dragging = True
+#         self.drag_offset = event.pos[1] - self.thumb_rect.top
+#       elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+#         self.dragging = False
+#       elif event.type == pygame.MOUSEMOTION and self.dragging:
+#         self.thumb_rect.top = min(max(event.pos[1] - self.drag_offset, self.rect.top), self.rect.bottom - self.thumb_rect.height)
+#         self.frame.scroll_pos = (sum(child.height for child in self.frame.children) - self.frame.rect.height) * (self.thumb_rect.top - self.rect.top) / (self.rect.height - self.thumb_rect.height)
+
 class RadioButton:
-  def __init__(self, x, y, size, color, selected=False, group=None, click_handler=None, label='', font=None, font_size=20):
+  def __init__(self, x, y, size=20, color=(0, 0, 0), selected=False, group=None, click_handler=None, label='', font=None, font_size=20):
     self.rect = pygame.Rect(x, y, size, size)
     self.color = color
     self.selected = selected
@@ -125,7 +176,7 @@ class TextInput:
           self.on_change(self.text)
 
 class Checkbox:
-  def __init__(self, x, y, size, label='', font_size=20, checked=False, color=(0, 0, 0), check_color=(255, 255, 255), font=None, group=None):
+  def __init__(self, x, y, size=20, label='', font_size=20, checked=False, color=(0, 0, 0), check_color=(255, 255, 255), font=None, group=None):
     self.rect = pygame.Rect(x, y, size, size)
     self.label = label
     self.font = pygame.font.Font(font, font_size)
